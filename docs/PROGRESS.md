@@ -1,0 +1,116 @@
+# Progress MyAbsen
+
+Cara pakai:
+- Setiap orang hanya mengedit **baris fasenya sendiri** (tabel) dan **bagian fasenya sendiri** (checklist), supaya tidak bentrok saat merge.
+- Status: `belum` / `dikerjakan` / `selesai`.
+- Fase 1 dan 2 dikerjakan satu orang dulu dan di-merge ke `main` sebelum fase lain dimulai.
+- Fase 3 sampai 6 bisa dikerjakan paralel oleh orang berbeda setelah fase 2 selesai.
+
+## Ringkasan
+
+Aplikasi MyAbsen telah berhasil mengimplementasikan: Layout Sidebar khas SMK Mandiri 02 Balaraja, form login kustom responsif dengan rate-limiting Alpine.js, ekspor data (Excel/PDF), hardening N+1, lokalisasi Bahasa Indonesia, serta perombakan UX yang transparan untuk Dashboard Siswa dan Guru. Antarmuka sekarang menggunakan font Inter untuk kenyamanan visual semua kalangan umur, serta penambahan visibilitas jadwal penuh untuk guru.
+
+| Fase | Isi | Penanggung jawab | Branch | Status |
+|---|---|---|---|---|
+| 0 | Perencanaan | Agent | main | selesai |
+| 1 | Database (migration, model, seeder) | Agent | main | selesai |
+| 2 | Auth dan role | Agent | fitur/fase-2-auth-role | selesai |
+| 3 | Master data admin | Agent | fitur/fase-3-master-data | selesai |
+| 4 | Absensi guru | Agent | fitur/fase-4-absensi-guru | selesai |
+| 5 | Tampilan siswa | Agent | fitur/fase-5-tampilan-siswa | selesai |
+| 6 | Rekap dan ekspor | Agent | fitur/fase-6-rekap-ekspor | selesai |
+| 7 | Hardening | Agent | fitur/fase-7-hardening | selesai |
+| 8 | Siap produksi dan deploy | | | ditunda |
+
+## Checklist per fase
+
+### Fase 0: Perencanaan
+- [x] Agent membaca AGENTS.md dan docs/PRD.md
+- [x] Rencana implementasi disetujui tim
+
+### Fase 1: Database
+- [x] Migration semua tabel sesuai PRD (termasuk soft delete dan index)
+- [x] Model dan relasi
+- [x] Enum `StatusKehadiran`
+- [x] Factory dan seeder demo
+- [x] `php artisan migrate:fresh --seed` berjalan tanpa error
+
+### Fase 2: Auth dan role
+- [x] Breeze (Blade) terpasang, registrasi publik dihapus
+- [x] Login memakai username (bukan email)
+- [x] Middleware `role` dan redirect per role
+- [x] Layout dasar responsif dengan navbar per role
+- [x] Test akses per role
+
+### Fase 3: Master data admin
+- [x] CRUD jurusan, kelas, mapel
+- [x] CRUD guru dan siswa (akun otomatis, reset password)
+- [x] Impor siswa dari Excel
+- [x] CRUD jadwal dengan pencegahan bentrok (AB-06)
+- [x] Pagination dan pencarian
+
+### Fase 4: Absensi guru
+- [x] Dashboard jadwal hari ini
+- [x] Halaman absensi dengan default Hadir
+- [x] Simpan dalam satu transaksi (AB-04)
+- [x] Sesi unik dan edit di hari yang sama (AB-01, AB-03)
+- [x] Koreksi oleh admin, pencatatan `diabsen_oleh` dan `diubah_oleh` (AB-09)
+- [x] Test untuk AB-01 sampai AB-04
+
+### Fase 5: Tampilan siswa
+- [x] Status hari ini per mapel (termasuk Belum diabsen)
+- [x] Riwayat dengan filter
+- [x] Persentase kehadiran (AB-07)
+- [x] Test akses data milik sendiri (AB-08)
+- [x] Menyesuaikan perhitungan persentase (Izin & Sakit dihitung Hadir) dan menambahkan breakdown detail kehadiran transparan di dashboard siswa.
+
+### Fase 6: Rekap dan ekspor
+- [x] Rekap per kelas, mapel, periode (agregasi SQL)
+- [x] Ekspor Excel
+- [x] Ekspor PDF
+- [x] Guru hanya melihat kelas yang ia ajar
+
+### Fase 7: Hardening
+- [x] Audit N+1 dan index
+- [x] Rate limiting login
+- [x] Pesan validasi dan halaman error Bahasa Indonesia
+- [x] Validasi form sisi server dan penonaktifan validasi bawaan browser (`novalidate`)
+- [x] Empty state dan tampilan mobile
+- [x] README (cara install dan akun demo)
+
+### Fase 8: Siap produksi
+- [ ] AdminSeeder khusus produksi (tanpa data demo)
+- [ ] Checklist `.env` produksi
+- [ ] `docs/DEPLOY.md`
+- [ ] Uji dengan `APP_DEBUG=false` dan `php artisan optimize`
+
+### Fase 9: Tambahan
+- [x] Otentikasi: Sistem login fleksibel menggunakan Username, NIP (Guru), atau NIS (Siswa).
+- [x] UI/UX: Penambahan toggle Mode Terang/Gelap menggunakan Alpine.js dan Tailwind, dengan Mode Terang sebagai setelan bawaan (default).
+- [x] UI/UX: Merombak halaman login dengan background kustom responsif dengan rate-limiting Alpine.js.
+- [x] UI/UX: Migrasi layout utama menjadi Sidebar Menu bertema biru dengan identitas SMK Mandiri 02 Balaraja.
+- [x] UI/UX: Perbaikan Dashboard Siswa (kontras warna, persentase kehadiran positif Izin & Sakit, serta breakdown transparan).
+- [x] UI/UX: Perombakan Dashboard Guru (banner sapaan solid blue, kartu statistik total kelas/mapel/jadwal, dan tombol navigasi pintar saat jadwal kosong).
+- [x] UI/UX: Mengganti font utama sistem menjadi Inter untuk meningkatkan aksesibilitas dan kenyamanan membaca.
+- [x] Fitur Guru: Menambahkan menu dan halaman khusus agar guru dapat melihat seluruh jadwal mengajar mereka dalam seminggu.
+- [x] UI/UX: Merombak Dashboard Admin dengan banner sapaan, statistik master data (Siswa, Guru, Kelas, Mapel), dan pintasan aksi cepat.
+- [x] UI/UX: Menerapkan font Inter secara global untuk meningkatkan modernitas UI dan kenyamanan membaca.
+- [x] UI/UX: Standarisasi seluruh ikon aplikasi menggunakan Tabler Icons (inline SVG) untuk tampilan yang lebih modern, konsisten, dan ringan.
+
+
+### Tahap Improvement: Refactor Arsitektur
+- [x] Pemisahan Tanggung Jawab (Separation of Concerns): Controller tipis (*Thin Controller*), FormRequest khusus validasi input, Policy khusus otorisasi hak akses, Service sebagai pusat seluruh *business logic*, Model khusus relasi & persistensi data, dan View khusus layer presentasi.
+- [x] Pembersihan Fat Controller: Memindahkan query agregasi rekap per mapel dan status harian siswa dari `Siswa\DashboardController` ke `AbsensiService`.
+- [x] Implementasi Service Pattern: Memusatkan logika statistik guru dan penyiapan form absensi dari `Guru\AbsensiController` ke `AbsensiService`.
+- [x] Pemusatan Otorisasi ke Policy: Menegakkan otorisasi absensi jadwal secara terpusat melalui `JadwalPolicy::absen()`, diintegrasikan langsung pada `StoreAbsensiRequest`.
+- [x] Eliminasi Duplikasi Logika: Sentralisasi penentuan nama hari server berbasis `Asia/Jakarta` melalui method statis tunggal `AbsensiService::getHariServer()`.
+- [x] Standarisasi Timezone: Menyelaraskan seluruh pencatatan waktu dan instansiasi Carbon mutlak menggunakan `Asia/Jakarta`.
+- [x] Pencegahan N+1 Query & Eager Loading pada seluruh relasi domain siswa, guru, kelas, dan jadwal.
+
+## Catatan dan hambatan
+Tulis satu baris per catatan dengan format: `tanggal | fase | catatan`.
+2026-09-21 | 3,6,7,8 | Fase 3, 6, 7, 8 ditunda untuk fokus MVP/BETA (Fase 1, 2, 4, 5). Master data digenerate via Seeder.
+2026-09-27 | 3,5,6,7,9 | Aplikasi MyAbsen telah berhasil mengimplementasikan: Layout Sidebar khas SMK Mandiri 02 Balaraja, form login kustom responsif dengan rate-limiting Alpine.js, ekspor data (Excel/PDF), hardening N+1, lokalisasi Bahasa Indonesia, serta perombakan UX yang transparan untuk Dashboard Siswa dan Guru. Antarmuka sekarang menggunakan font Inter untuk kenyamanan visual semua kalangan umur, serta penambahan visibilitas jadwal penuh untuk guru.
+2026-09-29 | 2 | Fase 2 (Refactor Dokumen & Test ke Keputusan Bisnis Aktual) telah selesai dilakukan berdasarkan hasil temuan Audit. PRD dan Test diselaraskan dengan aturan bisnis aktual: AB-03 (hak koreksi historis admin), AB-05 (perlindungan soft delete histori master data), AB-07 (kalkulasi persentase kehadiran: Hadir, Izin, dan Sakit dihitung positif; Alpa sebagai pengurang), dan standar timezone Asia/Jakarta. Seluruh 100 pengujian otomatis lulus (PASS).
+2026-09-29 | 3 | Tahap Improvement (Refactor Arsitektur) selesai: Pemisahan tegas tanggung jawab Controller-Service-Policy-FormRequest, eliminasi duplikasi hari/tanggal, standarisasi mutlak Asia/Jakarta, dan pembersihan Fat Controllers. Seluruh 100 test lulus (PASS).
+
